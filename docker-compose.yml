@@ -60,5 +60,36 @@ services:
     ports:
       - "5299:5299"
 
+  nginx:
+    image: nginx:1.17.3-alpine
+    container_name: bgmi-nginx
+    networks:
+      - download-network
+    volumes:
+      - ./bgmi/nginx/conf.d:/etc/nginx/conf.d
+      - ./bgmi/.bgmihost:/bgmi
+    environment:
+      - VIRTUAL_HOST=bgmi
+      - VIRTUAL_PORT=80
+
+  bgmi:
+    container_name: bgmi
+    build:
+      context: ./bgmi/bgmi
+      args:
+        BGMI_VERSION: master
+        CURRENT_UID: 501
+        CURRENT_GID: 20
+
+    user: "501:20"
+
+    networks:
+      - download-network
+    expose:
+      - 8888
+    environment:
+      - ARIA2_TOKEN=${ARIA2_TOKEN}
+      - BGMI_TOKEN=${BGMI_TOKEN}
+
 networks: 
   download-network:
