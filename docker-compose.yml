@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    networks: 
+      - download-network
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./watch_conf:/etc/nginx/conf.d
+      - ./docker_gen_tmpl/nginx.tmpl:/app/nginx.tmpl:ro
+# web ui : /
+  transmission:
+    image: linuxserver/transmission
+    container_name: transmission
+    networks: 
+      - download-network
+    environment:
+      - TZ=Asia/Shanghai
+      - VIRTUAL_HOST=transmission
+      - VIRTUAL_PORT=9091
+    volumes:
+      - ${DOWNLOAD_DST}:/downloads
+      - ./transmission_config/transmission-setting.json:/config/settings.json
+    ports:
+      - "9091:9091"
+
+  # web ui : /
+  aria2:
+    container_name: aria2
+    image: abcminiuser/docker-aria2-with-webui:latest-ng
+    networks: 
+      - download-network
+    volumes:
+      - ${DOWNLOAD_DST}:/data
+      - ./aria_config:/app/conf
+    environment:
+      - PGID=100
+      - PUID=1001
+      - VIRTUAL_HOST=aria
+      - VIRTUAL_PORT=80
+    ports:
+      - "6800:6800"
+    
+  baidupcs-web:
+    image: auska/docker-baidupcs
+    container_name: baidupcs
+    environment:
+      - TZ=Asia/Shanghai
+      - PORT=5299
+      - VIRTUAL_HOST=baidupcs
+      - VIRTUAL_PORT=5299
+    volumes:
+      - ${DOWNLOAD_DST}:/root/Downloads
+      - ./baidu_config/pcs_config.json:/defaults/pcs_config.json
+    networks: 
+      - download-network
+    ports:
+      - "5299:5299"
+
+networks: 
+  download-network:
