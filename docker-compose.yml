@@ -23,6 +23,7 @@ services:
       - VIRTUAL_PORT=9091
     volumes:
       - ${DOWNLOAD_DST}:/downloads
+      - ${DOWNLOAD_DST}/watch:/watch
       - ./transmission_config/transmission-setting.json:/config/settings.json
     ports:
       - "9091:9091"
