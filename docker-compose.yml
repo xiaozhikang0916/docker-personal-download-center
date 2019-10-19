@@ -52,7 +52,7 @@ services:
       - VIRTUAL_HOST=baidupcs
       - VIRTUAL_PORT=5299
     volumes:
-      - ${DOWNLOAD_DST}:/root/Downloads
+      - ${DOWNLOAD_DST}/baidu:/data/Downloads
       - ./baidu_config/pcs_config.json:/defaults/pcs_config.json
     networks: 
       - download-network
